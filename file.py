@@ -12,7 +12,7 @@ class UrlStorage:
         self.name = name
 
     def deserialize(self):
-        with open(self.name, "w+") as file:
+        with open(self.name, "r") as file:
             for line in file:
                 date, time, url = line.split(" ")
                 self.last_updated = datetime.strptime(f"{date} {time}", self.date_format)

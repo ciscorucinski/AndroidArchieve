@@ -2,7 +2,7 @@ import re
 
 
 class Regex(object):
-    find_download_url = "((?<=iframe src=\").*(?=\.frame).frame)"
+    find_download_url = "((?<=iframe src=\").*(?=\\.frame).frame)"
 
     @classmethod
     def find(cls, regex, text):
