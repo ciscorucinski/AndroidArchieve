@@ -11,9 +11,8 @@ class Regex(object):
     # https://regex101.com/r/yPETBx/2
     # parse_download_info = r"^.*(?:<p.+>(Android Studio ([0-9\.]+)(?: (\w+) (\d+))?)|<span>(.+)<\/span>|<section.+expandable (\w+)|<a href=\"(.+zips\/(.+)\.(.+)\/.+ide\-(.+)\..+linux(?:\.tar\.gz|\.zip)))"
 
-    # parse_download_info = r"^.*(?:<p.+>(Android Studio ([0-9\.]+)(?: (\w+) (\d+))?)|<span>(.+)<\/span>|<section.+expandable(?: (\w*)|)\">|<a href=\"(.+zips\/(.+)\.(.+)\/.+ide\-(.+)\..+linux(?:\.tar\.gz|\.zip)))"
+    parse_download_info = r"^.*(?:<p.+>(Android Studio ([0-9\.]+)(?: (\w+) (\d+))?)|<span>(.+)<\/span>|<section.+expandable(?: (\w*)|)\">|href=\"(.+zips\/(.+)\.(.+)\/.+ide\-(.+)\..+linux(?:\.tar\.gz|\.zip))\")"
 
-    parse_download_info = r"^.*(?:<p.+>(Android Studio ([0-9\.]+)(?: (\w+) (\d+))?)|<span>(.+)<\/span>|<section.+expandable(?: (\w*)|)\">|<a href=\"(.+zips\/(.+)\.(.+)\/.+ide\-(.+)\..+linux(?:\.tar\.gz|\.zip))\">)"
     @classmethod
     def find(cls, regex, text, flags=re.M):
         return cls.findall(regex, text, flags)[0]

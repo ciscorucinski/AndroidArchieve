@@ -21,7 +21,7 @@ class UrlStorage:
         return self
 
     def serialize(self, url):
-        with open(self.name, "w+") as file:
+        with open(self.name, "a") as file:
             time = datetime.now()
             file.writelines([
                 time.strftime(self.date_format),
