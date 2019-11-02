@@ -1,31 +1,16 @@
-import pprint
-from collections import deque
-
+import re
 from dateutil.parser import parse
 
-from util.regex import Regex
 from util.webpage import Webpage
+
+# https://regex101.com/r/yPETBx/3
+_parse_download_info = r"^.*(?:<p.+>(Android Studio ([0-9\.]+)(?: (\w+) (\d+))?)|<span>(.+)<\/span>|<section.+expandable(?: (\w*)|)\">|href=\"(.+zips\/(.+)\.(.+)\/.+ide\-(.+)\..+linux(?:\.tar\.gz|\.zip))\")"
+_find_download_url = r"((?<=iframe src=\").*(?=\.frame).frame)"
 
 
 def set_path(path):
     return f"https://developer.android.com/{path}"
 
-
-def print_matches(regex_match):
-    horizontal = "-" * 230
-    print()
-    print(horizontal)
-    for index, match in enumerate(regex_match):
-        if index % 4 == 0:
-            print("| {:>3s}. {:<10s} ".format(str(int((index + 4) / 4)), match[5]), end="", sep=", ")
-        elif index % 4 == 1:
-            print("| {:<32s}{:<10s}{:<10s}{:<6s} ".format(match[0], match[1], match[2], match[3]), end="", sep=", ")
-        elif index % 4 == 2:
-            print("| {:<20s} ".format(match[4]), end="", sep=", ")
-        elif index % 4 == 3:
-            print("| {:<105s}{:<10s}{:<5s}{:<5} |".format(match[6], match[7], match[8], match[9]), sep=", ")
-    print(horizontal)
-    print()
 
 class AndroidStudioPage(Webpage):
     path = "studio/archive"
@@ -33,7 +18,7 @@ class AndroidStudioPage(Webpage):
 
     def request_page(self, **kwargs):
         super().request_page(set_path(self.path))
-        self.matches = Regex.find(Regex.find_download_url, self.html)
+        self.matches = re.findall(_find_download_url, self.html, re.M)[0]
         self.download_page_url = set_path(self.matches)
 
         return self
@@ -44,6 +29,7 @@ class AndroidStudioPage(Webpage):
         return self.download_page_url
 
     def parse_downloads(self):
+        # Grabs the next webpage, parses the data, and returns that to the caller
         webpage = DownloadInfo().request_page(self.download_page_url)
         return webpage.parse_download_info()
 
@@ -55,7 +41,7 @@ class DownloadInfo(Webpage):
             raise RuntimeError('URL was not defined. Acquire URL from the TOS page first.')
 
         super().request_page(url)
-        self.matches = Regex.findall(Regex.parse_download_info, self.html)
+        self.matches = re.findall(_parse_download_info, self.html, re.M)
         return self
 
     def parse_download_info(self):
@@ -95,20 +81,5 @@ class DownloadInfo(Webpage):
 
         android_studio_release = zip(index, date, stability, name, version_name, risk_level, risk_level_increment, url,
                                      version, version_increment, version_intellij)
-
-        releases = dict()
-        for release in reversed(list(android_studio_release)):
-            version = release[4]
-            release_type = release[5]
-
-            if releases.get(version) is None:
-                releases[version] = dict()
-
-            if releases.get(version).get(release_type) is None:
-                releases.get(version).update({release_type: deque([release[3]])})
-            else:
-                releases.get(version).get(release_type).append(release[3])
-
-        pprint.pprint(releases)
 
         return android_studio_release
