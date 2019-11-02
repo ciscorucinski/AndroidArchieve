@@ -11,7 +11,7 @@ class UrlStorage:
     def __init__(self, name):
         self.name = name
 
-    def deserialize(self):
+    def read(self):
         with open(self.name, "r") as file:
             for line in file:
                 date, time, url = line.split(" ")
@@ -20,7 +20,7 @@ class UrlStorage:
                 self.urls.append(url[:-1])
         return self
 
-    def serialize(self, url):
+    def append(self, url):
         with open(self.name, "a") as file:
             time = datetime.now()
             file.writelines([
