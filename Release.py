@@ -2,19 +2,32 @@ from enum import Enum
 
 
 class Release(Enum):
-    Canary = ([],)
-    Beta = ([1],)
-    RC = ([2, 1],)
-    Stable = ([3, 2, 1],)
-    Preview = ([],)
+    Canary = (1, [])
+    Beta = (2, [1])
+    RC = (3, [2, 1])
+    Stable = (4, [3, 2, 1])
+    Preview = (0, [])
 
-    def __new__(cls, cascade):
-        value = len(cls.__members__) + 1
+    def __new__(cls, value, cascade):
         obj = object.__new__(cls)
         obj._value_ = value
         obj.cascade_releases = cascade
         obj.current = {"latest": (0, None)}     # tuple is (version, payload)
         return obj
+
+    @classmethod
+    def all_versions(cls, release: "Release" = Canary, *, include_2_4=True, include_latest=True):
+        keys = set()
+        for enum in Release:
+            if enum is release:
+                keys = set(enum.current.keys())
+
+        if not include_latest:
+            keys.discard("latest")
+        if include_2_4:
+            keys.add("2.4")
+
+        return sorted(keys)
 
     @classmethod
     def latest_releases(cls, stable_only=False):
@@ -46,11 +59,11 @@ class Release(Enum):
 
     @staticmethod
     def _cascade(version, release, data):
-        for cascade in release.cascade_releases:
-            cascaded_type = Release(cascade)
-            if cascaded_type.value < release.value:
-                cascaded_type.current[version] = data
-                if version == cascaded_type.current.get("latest")[0]:
-                    cascaded_type.current["latest"] = (version, data)
+        for ordinal in release.cascade_releases:
+            cascade = Release(ordinal)
+            if cascade.value < release.value:
+                cascade.current[version] = data
+                if version == cascade.current.get("latest")[0]:
+                    cascade.current["latest"] = (version, data)
             else:
-                cascaded_type.current[version] = (0, None)
+                cascade.current[version] = (0, None)
