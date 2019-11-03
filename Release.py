@@ -30,6 +30,10 @@ class Release(Enum):
         return sorted(keys)
 
     @classmethod
+    def data(cls, version, release: "Release"):
+        return release.current.get(version, None)
+
+    @classmethod
     def latest_releases(cls, stable_only=False):
         return cls._get_releases("latest", stable_only=stable_only)
 
