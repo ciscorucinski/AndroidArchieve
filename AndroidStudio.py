@@ -9,11 +9,11 @@ _find_download_url = r"((?<=iframe src=\").*(?=\.frame).frame)"
 
 
 def set_path(path):
-    return f"https://developer.android.com/{path}"
+    return f"https://developer.android.com{path}"
 
 
 class AndroidStudioPage(Webpage):
-    path = "studio/archive"
+    path = "/studio/archive"
     download_page_url = None
 
     def request_page(self, **kwargs):
