@@ -16,7 +16,9 @@ class Release(Enum):
         return obj
 
     @classmethod
-    def all_versions(cls, release: "Release" = Canary, *, include_2_4=True, include_latest=True):
+    def all_versions(cls, release: "Release" = None, *, include_2_4=True, include_latest=True):
+        if type(release) is not Release:
+            release = Release.Canary
         keys = set()
         for enum in Release:
             if enum is release:
