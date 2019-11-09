@@ -34,21 +34,21 @@ def main():
 
     download_url = webpage.get_download_info_url()
 
-    # if download_url in last_updated_file.read().urls:
-    #     print("URL already exists:", download_url)
-    #     releases = release_info_file.read()
-    #
-    #     for version, release, download_url in releases:
-    #         Release.add(release, version, download_url)
-    #
-    # else:
-    #     last_updated_file.append(download_url)
-    #     print("URL appended:", download_url)
+    if download_url in last_updated_file.read().urls:
+        print("URL already exists:", download_url)
+        releases = release_info_file.read()
 
-    android_studio_download_info = webpage.parse_downloads()
-    organize_releases(android_studio_download_info)
-    releases, latest = release_info()
-    release_info_file.write(releases, latest)
+        for version, release, download_url in releases:
+            Release.add(release, version, download_url)
+
+    else:
+        last_updated_file.append(download_url)
+        print("URL appended:", download_url)
+
+        android_studio_download_info = webpage.parse_downloads()
+        organize_releases(android_studio_download_info)
+        releases, latest = release_info()
+        release_info_file.write(releases, latest)
 
 
 if __name__ == '__main__':
