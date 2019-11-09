@@ -35,7 +35,7 @@ def main():
     download_url = webpage.get_download_info_url()
 
     if download_url in last_updated_file.read().urls:
-        print("URL already exists:", download_url)
+        acquisition = f"Local File = './{release_info_file.filename}'"
         releases = release_info_file.read()
 
         for version, release, download_url in releases:
@@ -43,12 +43,14 @@ def main():
 
     else:
         last_updated_file.append(download_url)
-        print("URL appended:", download_url)
+        acquisition = f"Web Page URL = '{download_url}'"
 
         android_studio_download_info = webpage.parse_downloads()
         organize_releases(android_studio_download_info)
         releases, latest = release_info()
         release_info_file.write(releases, latest)
+
+    print(f"Data Acquisition: {acquisition}")
 
 
 if __name__ == '__main__':
