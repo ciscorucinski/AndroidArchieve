@@ -1,6 +1,6 @@
 from AndroidStudio import AndroidStudioPage
 from Release import Release
-from util.file import LastUpdatedStorage, ReleaseInfoStorage
+from storage import LastUpdatedStorage, ReleaseInfoStorage
 
 
 def organize_releases(studio_releases):
@@ -32,8 +32,8 @@ def release_info():
 
 def main():
     webpage = AndroidStudioPage().request_page()
-    last_updated_file = LastUpdatedStorage("archives.txt")
-    release_info_file = ReleaseInfoStorage("releases.txt")
+    last_updated_file = LastUpdatedStorage("file/archives.txt")
+    release_info_file = ReleaseInfoStorage("file/releases.txt")
 
     download_url = webpage.get_download_info_url()
 
