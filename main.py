@@ -17,9 +17,9 @@ def release_info():
             data = Release.data(version, release)
             if data is not None:
                 if version == "latest":
-                    latest.append(tuple([data[0], release.name, data[1]]))
+                    latest.append(tuple([data[0], release.name, data[1], data[2]]))
                 else:
-                    releases.append(tuple([version, release.name, data]))
+                    releases.append(tuple([version, release.name, data[0], data[1]]))
                     break
             else:
                 continue
@@ -29,8 +29,8 @@ def release_info():
 
 def main():
     webpage = AndroidStudioPage().request_page()
-    last_updated_file = LastUpdatedStorage("file/archives.txt")
-    release_info_file = ReleaseInfoStorage("file/releases.txt")
+    last_updated_file = LastUpdatedStorage("file/archives.csv")
+    release_info_file = ReleaseInfoStorage("file/releases.csv")
 
     download_url = webpage.get_download_info_url()
 

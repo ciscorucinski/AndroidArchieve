@@ -13,10 +13,11 @@ class ReleaseInfoStorage:
     def write(self, releases, latest):
         lines = OrderedDict()
         with open(self.filename, "w") as file:
-            for release in releases:
-                lines.update({f"{release[0]} {release[1]} {release[2]}\n": None})
-            for release in latest:
-                lines.update({f"{release[0]} {release[1]} {release[2]}\n": None})
+            for version, release_type, name, url in releases:
+                lines.update({f"{version}, {release_type}, {name}, {url}\n": None})
+            for version, release_type, name, url in latest:
+                print("\t", version, release_type, name, url)
+                lines.update({f"{version}, {release_type}, {name}, {url}\n": None})
             for line in lines:
                 file.write(line)
         return self
@@ -25,7 +26,7 @@ class ReleaseInfoStorage:
         releases = []
         with open(self.filename, "r") as file:
             for line in file:
-                releases.append(tuple(line[:-1].split(" ")))
+                releases.append(tuple(line[:-1].split(", ")))
         return releases
 
 
@@ -42,8 +43,8 @@ class LastUpdatedStorage:
     def read(self):
         with open(self.filename, "r") as file:
             for line in file:
-                date, time, url = line.split(" ")
-                self.last_updated = datetime.strptime(f"{date} {time}", self.date_format)
+                date, url = line.split(", ")
+                self.last_updated = datetime.strptime(f"{date}", self.date_format)
                 self.dates.append(self.last_updated)
                 self.urls.append(url[:-1])
         return self
@@ -53,7 +54,7 @@ class LastUpdatedStorage:
             time = datetime.now()
             file.writelines([
                 time.strftime(self.date_format),
-                " ",
+                ", ",
                 url,
                 "\n"
             ])
