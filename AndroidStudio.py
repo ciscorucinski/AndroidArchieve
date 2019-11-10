@@ -2,8 +2,8 @@ import re
 
 import requests
 
-# https://regex101.com/r/yPETBx/4
-_parse_download_info = r"^.*(?:<p.+>Android Studio ([\d.]{3})(?: (\w+) (\d+))?|href=\"(.+linux(?:\.tar\.gz|\.zip))\")"
+# https://regex101.com/r/yPETBx/5
+_parse_download_info = r"^.*(?:<p.+>Android Studio ([\d.]+)(?: (\w+ \d+))?|href=\"(.+linux(?:\.tar\.gz|\.zip))\")"
 _find_download_url = r"((?<=iframe src=\").*(?=\.frame).frame)"
 
 
@@ -55,14 +55,13 @@ class DownloadInfo(Webpage):
         return self
 
     def parse_download_info(self):
-        version, release, number = zip(*[
+        version, release, name = zip(*[
             (
-                version,
-                release if release != "" else "stable",
-                number if number != "" else "1"
-
+                version_code if len(version_code) == 3 else version_code[:3],
+                release_name.split(" ")[0] if release_name != "" else "stable",
+                f"{version_code} {release_name}" if release_name != "" else version_code
             )
-            for index, (version, release, number, _)
+            for index, (version_code, release_name, _)
             in enumerate(self.matches)
             if index % 2 == 0
         ])
@@ -73,4 +72,4 @@ class DownloadInfo(Webpage):
             if index % 2 == 1
         ]
 
-        return zip(version, release, number, url)
+        return zip(version, release, name, url)
