@@ -1,24 +1,24 @@
 from enum import Enum
+from typing import Union
 
 
 class Release(Enum):
-    Canary = (1, [])
-    Beta = (2, [1])
-    RC = (3, [2, 1])
-    Stable = (4, [3, 2, 1])
-    Preview = (0, [])
+    CANARY = 1
+    BETA = 2
+    RC = 3
+    STABLE = 4
+    PREVIEW = 0
 
-    def __new__(cls, value, cascade):
+    def __new__(cls, value):
         obj = object.__new__(cls)
         obj._value_ = value
-        obj.cascade_releases = cascade
-        obj.current = {"latest": (0, None)}     # tuple is (version, payload)
+        obj.current = {"latest": (0, 0, None)}     # tuple is (version, payload)
         return obj
 
     @classmethod
     def all_versions(cls, release: "Release" = None, *, include_2_4=True, include_latest=True):
         if type(release) is not Release:
-            release = Release.Canary
+            release = Release.CANARY
         keys = set()
         for enum in Release:
             if enum is release:
@@ -46,30 +46,20 @@ class Release(Enum):
     @classmethod
     def _get_releases(cls, version, stable_only):
         release = dict()
-        release.update({"stable": cls.Stable.current.get(version),
+        release.update({"stable": cls.STABLE.current.get(version),
                         "rc": cls.RC.current.get(version) if not stable_only else None,
-                        "beta": cls.Beta.current.get(version) if not stable_only else None,
-                        "canary": cls.Canary.current.get(version) if not stable_only else None})
+                        "beta": cls.BETA.current.get(version) if not stable_only else None,
+                        "canary": cls.CANARY.current.get(version) if not stable_only else None})
         if version == "2.4":
-            release.update({"preview": cls.Preview.current.get(version) if not stable_only else None})
+            release.update({"preview": cls.PREVIEW.current.get(version) if not stable_only else None})
         return release
 
     @staticmethod
-    def add(release_string, version, data):
-        for release in Release:
-            if release_string.lower() == release.name.lower():
-                release.current[version] = data
-                release.current["latest"] = (version, data)
-                Release._cascade(version, release, data)
-                break
-
-    @staticmethod
-    def _cascade(version, release, data):
-        for ordinal in release.cascade_releases:
-            cascade = Release(ordinal)
-            if cascade.value < release.value:
-                cascade.current[version] = data
-                if version == cascade.current.get("latest")[0]:
-                    cascade.current["latest"] = (version, data)
-            else:
-                cascade.current[version] = (0, None)
+    def cascading_add(release: Union[str, "Release"], version, name, url):
+        if type(release) is str:
+            release = Release[release.upper()]
+        release.current[version] = (name, url)
+        release.current["latest"] = (version, name, url)
+        if release is not Release.CANARY and release is not Release.PREVIEW:
+            Release.cascading_add(Release(release.value - 1), version, name, url)
+        return

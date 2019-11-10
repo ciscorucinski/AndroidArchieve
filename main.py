@@ -6,7 +6,7 @@ from storage import LastUpdatedStorage, ReleaseInfoStorage
 def organize_releases(studio_releases):
     for release in reversed(list(studio_releases)):
         version, release_type, number, download_link = release
-        Release.add(release_type, version, download_link)
+        Release.cascading_add(release_type, version, number, download_link)
 
 
 def release_info():
@@ -38,8 +38,8 @@ def main():
         acquisition = f"Local File = './{release_info_file.filename}'"
         releases = release_info_file.read()
 
-        for version, release, download_url in releases:
-            Release.add(release, version, download_url)
+        for version, release, name, download_url in releases:
+            Release.cascading_add(release, version, name, download_url)
 
     else:
         last_updated_file.append(download_url)
