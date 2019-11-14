@@ -56,3 +56,15 @@ class Release(Enum):
         if release.value > Release.CANARY.value:
             Release.cascading_add(Release(release.value - 1), version, name, url)
         return
+
+    @staticmethod
+    def all_releases(*, minimize: bool):
+        releases = []
+        for version in Release.all_versions(include_latest=False):
+            for release in reversed(Release):
+                data = Release.data(version, release)
+                if data is not None:
+                    releases.append(tuple([version, release.name, data[0], data[1]]))
+                    if minimize:
+                        break
+        return releases

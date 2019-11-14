@@ -3,28 +3,9 @@ from Release import Release
 from storage import LastUpdatedStorage, ReleaseInfoStorage
 
 
-def organize_releases(studio_releases):
-    for release in reversed(list(studio_releases)):
-        version, release_type, number, download_link = release
-        Release.cascading_add(release_type, version, number, download_link)
-
-
-def release_info():
-    releases = []
-    latest = []
-    for version in Release.all_versions(include_latest=True):
-        for release in reversed(Release):
-            data = Release.data(version, release)
-            if data is not None:
-                if version == "latest":
-                    latest.append(tuple([data[0], release.name, data[1], data[2]]))
-                else:
-                    releases.append(tuple([version, release.name, data[0], data[1]]))
-                    break
-            else:
-                continue
-
-    return releases, latest
+def add_releases(releases):
+    for version, release, name, download_url in releases:
+        Release.cascading_add(release, version, name, download_url)
 
 
 def main():
@@ -38,8 +19,7 @@ def main():
         acquisition = f"Local File = './{release_info_file.filename}'"
         releases = release_info_file.read().releases
 
-        for version, release, name, download_url in releases:
-            Release.cascading_add(release, version, name, download_url)
+        add_releases(releases)
 
     else:
         last_updated_file.write(download_url)
