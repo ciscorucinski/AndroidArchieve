@@ -36,13 +36,13 @@ def main():
 
     if download_url in last_updated_file.read().urls:
         acquisition = f"Local File = './{release_info_file.filename}'"
-        releases = release_info_file.read()
+        releases = release_info_file.read().releases
 
         for version, release, name, download_url in releases:
             Release.cascading_add(release, version, name, download_url)
 
     else:
-        last_updated_file.append(download_url)
+        last_updated_file.write(download_url)
         acquisition = f"Web Page URL = '{download_url}'"
 
         android_studio_download_info = webpage.parse_downloads()

@@ -1,62 +1,42 @@
-from collections import OrderedDict
 from datetime import datetime
 
 
-class ReleaseInfoStorage:
-    versions = []
-    releases = []
-    download_links = []
-
+class Storage:
     def __init__(self, file):
         self.filename = file
+        create = open(self.filename, "a")  # Ensure file is created and not erased
+        create.close()
 
-    def write(self, releases, latest):
-        lines = OrderedDict()
+
+class ReleaseInfoStorage(Storage):
+    releases = []
+
+    def write(self, releases):
         with open(self.filename, "w") as file:
             for version, release_type, name, url in releases:
-                lines.update({f"{version}, {release_type}, {name}, {url}\n": None})
-            for version, release_type, name, url in latest:
-                print("\t", version, release_type, name, url)
-                lines.update({f"{version}, {release_type}, {name}, {url}\n": None})
-            for line in lines:
-                file.write(line)
+                file.write(f"{version}, {release_type}, {name}, {url}\n")
         return self
 
     def read(self):
-        releases = []
         with open(self.filename, "r") as file:
             for line in file:
-                releases.append(tuple(line[:-1].split(", ")))
-        return releases
+                self.releases.append(tuple(line[:-1].split(", ")))
+        return self
 
 
-class LastUpdatedStorage:
-    dates = []
+class LastUpdatedStorage(Storage):
     urls = []
-    last_updated = None
-
-    date_format = "%Y-%m-%d %H:%M:%S"
-
-    def __init__(self, file):
-        self.filename = file
+    _date_format = "%Y-%m-%d %H:%M:%S"
 
     def read(self):
         with open(self.filename, "r") as file:
             for line in file:
                 date, url = line.split(", ")
-                self.last_updated = datetime.strptime(f"{date}", self.date_format)
-                self.dates.append(self.last_updated)
                 self.urls.append(url[:-1])
         return self
 
-    def append(self, url):
+    def write(self, url):
         with open(self.filename, "a") as file:
-            time = datetime.now()
-            file.writelines([
-                time.strftime(self.date_format),
-                ", ",
-                url,
-                "\n"
-            ])
-            self.last_updated = time
+            time = datetime.now().strftime(self._date_format)
+            file.write(f"{time}, {url}\n")
         return self
