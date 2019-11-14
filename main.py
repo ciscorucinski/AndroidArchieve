@@ -45,10 +45,10 @@ def main():
         last_updated_file.append(download_url)
         acquisition = f"Web Page URL = '{download_url}'"
 
-        android_studio_download_info = webpage.parse_downloads()
-        organize_releases(android_studio_download_info)
-        releases, latest = release_info()
-        release_info_file.write(releases, latest)
+        android_studio_download_info = reversed(list(webpage.parse_downloads()))
+        add_releases(android_studio_download_info)
+        releases = Release.all_releases(minimize=True)
+        release_info_file.write(releases)
 
     print(f"Data Acquisition: {acquisition}")
 

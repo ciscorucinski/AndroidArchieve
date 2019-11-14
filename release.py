@@ -3,11 +3,11 @@ from typing import Union
 
 
 class Release(Enum):
+    PREVIEW = 0
     CANARY = 1
     BETA = 2
     RC = 3
     STABLE = 4
-    PREVIEW = 0
 
     def __new__(cls, value):
         obj = object.__new__(cls)
@@ -16,19 +16,12 @@ class Release(Enum):
         return obj
 
     @classmethod
-    def all_versions(cls, release: "Release" = None, *, include_2_4=True, include_latest=True):
+    def all_versions(cls, release: "Release" = None, *, include_preview: bool = True, include_latest: bool = True):
         if type(release) is not Release:
             release = Release.CANARY
-        keys = set()
-        for enum in Release:
-            if enum is release:
-                keys = set(enum.current.keys())
-
-        if not include_latest:
-            keys.discard("latest")
-        if include_2_4:
-            keys.add("2.4")
-
+        keys = set(release.current.keys())
+        keys.discard("latest") if not include_latest else None
+        keys.add("2.4") if include_preview else None
         return sorted(keys)
 
     @classmethod
@@ -60,6 +53,6 @@ class Release(Enum):
             release = Release[release.upper()]
         release.current[version] = (name, url)
         release.current["latest"] = (version, name, url)
-        if release is not Release.CANARY and release is not Release.PREVIEW:
+        if release.value > Release.CANARY.value:
             Release.cascading_add(Release(release.value - 1), version, name, url)
         return
