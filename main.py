@@ -1,5 +1,5 @@
 from AndroidStudio import AndroidStudioPage
-from Release import Release
+from release import Release
 from storage import LastUpdatedStorage, ReleaseInfoStorage
 
 

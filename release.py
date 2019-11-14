@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import Union
 
 
 class Release(Enum):
@@ -12,7 +11,7 @@ class Release(Enum):
     def __new__(cls, value):
         obj = object.__new__(cls)
         obj._value_ = value
-        obj.current = {"latest": (0, 0, None)}     # tuple is (version, payload)
+        obj.current = dict()
         return obj
 
     @classmethod
@@ -29,26 +28,18 @@ class Release(Enum):
         return release.current.get(version, None)
 
     @classmethod
-    def latest_releases(cls, stable_only=False):
-        return cls._get_releases("latest", stable_only=stable_only)
-
-    @classmethod
     def releases(cls, version):
-        return cls._get_releases(version, stable_only=False)
-
-    @classmethod
-    def _get_releases(cls, version, stable_only):
         release = dict()
         release.update({"stable": cls.STABLE.current.get(version),
-                        "rc": cls.RC.current.get(version) if not stable_only else None,
-                        "beta": cls.BETA.current.get(version) if not stable_only else None,
-                        "canary": cls.CANARY.current.get(version) if not stable_only else None})
+                        "rc": cls.RC.current.get(version),
+                        "beta": cls.BETA.current.get(version),
+                        "canary": cls.CANARY.current.get(version)})
         if version == "2.4":
-            release.update({"preview": cls.PREVIEW.current.get(version) if not stable_only else None})
+            release.update({"preview": cls.PREVIEW.current.get(version)})
         return release
 
     @staticmethod
-    def cascading_add(release: Union[str, "Release"], version, name, url):
+    def cascading_add(release, version, name, url):
         if type(release) is str:
             release = Release[release.upper()]
         release.current[version] = (name, url)
