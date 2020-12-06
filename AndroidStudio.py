@@ -58,7 +58,7 @@ class DownloadInfo(Webpage):
     def parse_download_info(self):
         version, release, name = zip(*[
             (
-                version_code if len(version_code) == 3 else version_code[:3],
+                version_code if len(version_code) >= 8 or len(version_code) == 3 else version_code[:3],
                 release_name.split(" ")[0] if release_name != "" else "stable",
                 f"{version_code} {release_name}" if release_name != "" else version_code
             )
